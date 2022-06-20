@@ -30,7 +30,7 @@ export class CrudController {
   }
 
   @Get(':id')
-  getRandom(@Param('id') id) {
+  getRandom(@Param('id') id: string) {
     return this.crudService.getRandom(id);
   }
 
@@ -41,12 +41,12 @@ export class CrudController {
   }
 
   @Patch(':id')
-  update(@Param('id') id, @Body() updateCrudDto: UpdateCrudDto) {
+  update(@Param('id') id: string, @Body() updateCrudDto: UpdateCrudDto) {
     return this.crudService.update(id, updateCrudDto);
   }
 
   @Delete(':id')
-  delete(@Param('id') id) {
+  delete(@Param('id') id: string) {
     return this.crudService.delete(id);
   }
 }

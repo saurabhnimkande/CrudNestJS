@@ -1,8 +1,14 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { Crud } from './entities/crud.entity';
 import { Query } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { CreateCrudDto } from './dto/create-crud.dto';
 
 @Injectable()
 export class CrudService {
@@ -16,31 +22,36 @@ export class CrudService {
   }
 
   getData() {
-    return this.data;
+    return this.crudModel.find().exec();
   }
 
-  getRandom(id: number) {
-    let new_data = this.data.filter((el) => el.id == id);
-    if (!new_data[0]) {
-      throw new HttpException(`ID NOT FOUND ${id}`, HttpStatus.NOT_FOUND);
+  async getRandom(id: string) {
+    const crud = await this.crudModel.findOne({ _id: id }).exec();
+    if (!crud) {
+      throw new NotFoundException(`curd ${id} not found`);
     }
-    return new_data[0];
+    return crud;
   }
 
-  returnData(body) {
-    this.data = [...this.data, body];
-    return this.data;
+  returnData(body: CreateCrudDto) {
+    const crud = new this.crudModel(body);
+    return crud.save();
   }
 
-  update(id, body) {
-    let new_arr = this.data.map((el) =>
-      el.id == id ? { ...el, ...body } : el,
-    );
-    return new_arr;
+  async update(id: string, body: any) {
+    const prevCrud = await this.crudModel
+      .findOneAndUpdate({ _id: id }, { $set: body }, { new: true })
+      .exec();
+
+    if (!prevCrud) {
+      throw new NotFoundException(`Crud ${id} not found`);
+    }
+
+    return prevCrud;
   }
 
-  delete(id) {
-    this.data = this.data.filter((el) => el.id != id);
-    return this.data;
+  async delete(id: string) {
+    const crud = await this.crudModel.findOne({ _id: id });
+    return crud.remove();
   }
 }
