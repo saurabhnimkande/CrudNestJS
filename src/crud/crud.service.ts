@@ -1,16 +1,14 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { Crud } from './entities/crud.entity';
 import { Query } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
 
 @Injectable()
 export class CrudService {
-  private data: Crud[] = [
-    {
-      id: 1,
-      name: 'saurabh',
-      dept: 'tech',
-    },
-  ];
+  constructor(
+    @InjectModel(Crud.name) private readonly crudModel: Model<Crud>,
+  ) {}
 
   pagination(@Query() queryParams) {
     const { offset, limit } = queryParams;
